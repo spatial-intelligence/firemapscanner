@@ -86,12 +86,13 @@ if ($uploadOk == 0) {
       $u ='user_'.$userid;
 
       $link = pg_Connect("dbname=nasafiremap user=$username password=$password");
-
+  
+    
       if ($geoFileType=="gpkg") {
-         $query = "insert into monitorzones (geom,projectid) select st_transform(geom,4326),$projectid from $u;";
+         $query = "insert into monitorzones (geom,projectid) select st_transform(st_force2d(geom),4326),$projectid from $u;";
       }
       else{      
-        $query = "insert into monitorzones (geom,projectid) select st_transform(wkb_geometry,4326),$projectid from $u;";
+        $query = "insert into monitorzones (geom,projectid) select st_transform(st_force2d(wkb_geometry),4326),$projectid from $u;";
       }
   
       $result = pg_exec($link,$query);
