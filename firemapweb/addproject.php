@@ -2,12 +2,10 @@
 <html>
 <head>
 <title>Add New Project</title>
-
 <script src="libs/jquery-1.11.1.min.js"></script>
 
 <?php
 	include('header_alerts.php');
-  
 ?>
 
 <h1>Add Project:</h1>
@@ -24,10 +22,7 @@ var chk_stid_free=null;
 function checkProjectCode() {
 
 projectid= details.p.value;
-
-
 		var data='projectid='.concat(projectid);
-
 		$.ajax({ url: 'checkprojectexists.php',
     		dataType: 'json',
     		data: data,
@@ -38,8 +33,6 @@ projectid= details.p.value;
     		}
  		});
 }
-
-
 
 
 function validateForm() {
@@ -53,7 +46,6 @@ function validateForm() {
         alert("Please supply an abstract");
         return false;
     };
-
 }
 
 </script>
@@ -61,8 +53,6 @@ function validateForm() {
 
 <div class="content">
     <form id="details" action="submit_newproject.php" onsubmit="return validateForm()" method="POST">
-
-  
         <br>
         <div id="choice">
                 <h3>Project Details</h3>
@@ -79,7 +69,6 @@ function validateForm() {
             <br>
             <label><b>Active (monitoring):</b></label> <input type="checkbox" name="c_active" id ="1" value="1" >
             <br>  <br>
-
             </div> <br><br>
                     
         <input name="mySubmit" type="submit"  value="Add Project" />
@@ -94,10 +83,12 @@ function validateForm() {
             
     $pdo = new PDO('pgsql:host=127.0.0.1;dbname=nasafiremap', $username, $password);
             
-    $sql="select coalesce(1+max(projectid),1) as nbr from project;";
+    $sql="select coalesce(1+max(projectid),1) as nbr from project";
     $stmt = $pdo->prepare($sql);
     $stmt->execute();	
+
     $rows = $stmt->fetch() ;
+
     $row = $rows["nbr"];
 
        echo ("<script>details.p.value= '$row' </script>") ;
