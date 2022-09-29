@@ -1,6 +1,7 @@
 <?php
 
 $prid=$_GET['projectid'];
+$pcount=$_GET['pcount'];
 
 $opt = [
     PDO::ATTR_ERRMODE           => PDO::ERRMODE_EXCEPTION,
@@ -8,13 +9,18 @@ $opt = [
     PDO::ATTR_EMULATE_PREPARES => false 
 ];
 
-
 $username = getenv('DBFIRE_USERNAME');
 $password = getenv('DBFIRE_PASSWORD');
 		
 $pdo = new PDO('pgsql:host=127.0.0.1;dbname=nasafiremap', $username, $password, $opt);
 
-$result = $pdo->query("SELECT polyid,projectid, ST_AsGeoJSON(ST_Transform(geom, 4326)) AS geojson FROM monitorzones where projectid=$prid");
+if ($pcount > 250)  // high polygon count so show simplified view
+{
+   $result = $pdo->query("SELECT polyid,projectid, ST_AsGeoJSON(st_simplifypreservetopology(ST_Transform(geom, 4326),0.003)) AS geojson FROM monitorzones where projectid=$prid");
+}
+else{
+    $result = $pdo->query("SELECT polyid,projectid, ST_AsGeoJSON(ST_Transform(geom, 4326)) AS geojson FROM monitorzones where projectid=$prid");
+}
 
 # Build GeoJSON feature collection array
 $geojson = array(
