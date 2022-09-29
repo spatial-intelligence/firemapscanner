@@ -94,12 +94,10 @@ function validateForm() {
             
     $pdo = new PDO('pgsql:host=127.0.0.1;dbname=nasafiremap', $username, $password);
             
-    $sql="select coalesce(1+max(projectid),1) as nbr from project where owner_userid = ?";
+    $sql="select coalesce(1+max(projectid),1) as nbr from project;";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$userid]);	
-
+    $stmt->execute();	
     $rows = $stmt->fetch() ;
-
     $row = $rows["nbr"];
 
        echo ("<script>details.p.value= '$row' </script>") ;
