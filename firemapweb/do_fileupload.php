@@ -14,6 +14,14 @@ $geoFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 $username = getenv('DBFIRE_USERNAME');
 $password = getenv('DBFIRE_PASSWORD');
 
+// Flag to set webroot on development or production
+$webroot = "/var/www/html/firemapweb/";
+$webserver = getenv('WEBSERVER');
+if ($webserver == "azureprod") {
+  $webroot = "/var/www/html/";
+}
+
+
 // Check if file already exists
 if (file_exists($target_file)) {
   echo "Sorry, file already exists.";
@@ -51,12 +59,17 @@ if ($uploadOk == 0) {
         $tmstmp = strtotime("now");
         $fn = $userid."_".$tmstmp;
 
-        $cmd = "unzip  /var/www/html/firemapweb/$target_file_save -d /var/www/html/firemapweb/uploads/$fn  2>&1";
-        //echo ($cmd);
+        // $cmd = "unzip  /var/www/html/$target_file_save -d /var/www/html/uploads/$fn  2>&1";
+        $cmd = "unzip  {$webroot}{$target_file_save} -d {$webroot}uploads/$fn  2>&1";
+        // echo ($cmd);
+
         echo shell_exec($cmd);
 
         //scan directory for files of type .SHP
-        $locationtoscan = "/var/www/html/firemapweb/uploads/$fn";
+        // $locationtoscan = "/var/www/html/firemapweb/uploads/$fn";
+        $locationtoscan = "{$webroot}uploads/$fn";
+        // echo "locationtoscan $locationtoscan";
+
         $files = glob($locationtoscan.'/*.shp');
 
         
@@ -72,7 +85,8 @@ if ($uploadOk == 0) {
       else
       {
         $filetoprocess = basename($target_file_save);
-        $cmd = 'ogr2ogr -f "PostgreSQL" PG:"dbname=nasafiremap user='.$username.' password='.$password.' " /var/www/html/firemapweb/' . $target_file_save.' -nln user_'. $userid.' -skip-failures  -overwrite';
+        // $cmd = 'ogr2ogr -f "PostgreSQL" PG:"dbname=nasafiremap user='.$username.' password='.$password.' " /var/www/html/firemapweb/' . $target_file_save.' -nln user_'. $userid.' -skip-failures  -overwrite';
+        $cmd = 'ogr2ogr -f "PostgreSQL" PG:"dbname=nasafiremap user='.$username.' password='.$password.' " $webroot' . $target_file_save.' -nln user_'. $userid.' -skip-failures  -overwrite';
         echo ("<br><br>".$cmd."<br>");
         echo shell_exec($cmd);
 
@@ -108,7 +122,7 @@ if ($uploadOk == 0) {
       pg_close($link);
 
 
-header("Location: projectlist_you.php");
+      header("Location: projectlist_you.php");
 die();
   
 
@@ -120,8 +134,3 @@ die();
   }
 
 }
-
-
-
-?>
-
