@@ -2,7 +2,6 @@
 <html>
 <head>
 <title>Edit Project Details</title>
-
 <script src="libs/jquery-1.11.1.min.js"></script>
 
 <?php
@@ -10,54 +9,51 @@
 ?>
 
 <?php
-$userid=$_SESSION['usercode'];
-$projectid=$_GET['projectid'];
+    $userid=$_SESSION['usercode'];
+    $projectid=$_GET['projectid'];
 
-$username = getenv('DBFIRE_USERNAME');
-$password = getenv('DBFIRE_PASSWORD');
-		
-$pdo = new PDO('pgsql:host=127.0.0.1;dbname=nasafiremap', $username, $password);
+    $username = getenv('DBFIRE_USERNAME');
+    $password = getenv('DBFIRE_PASSWORD');
+            
+    $pdo = new PDO('pgsql:host=127.0.0.1;dbname=nasafiremap', $username, $password);
 
-$sql="select project.projectid,project.active,project.projectname,project.notification_emailaddress from project join userproject on project.projectid = userproject.projectid where project.projectid=?  and userproject.userid= ?  ;";
-$stmt = $pdo->prepare($sql);
+    $sql="select project.projectid,project.active,project.projectname,project.notification_emailaddress from project join userproject on project.projectid = userproject.projectid where project.projectid=?  and userproject.userid= ?  ;";
+    $stmt = $pdo->prepare($sql);
 
-$stmt->execute([$projectid, $userid]);	
+    $stmt->execute([$projectid, $userid]);	
+    $resultcount = $stmt -> rowCount() ;
+    $row = $stmt->fetch();
+    //var_export($row);
+    $pdo = null;
 
-$resultcount = $stmt -> rowCount() ;
+    // Check if any records found based on userid and permissions
+    if ($resultcount ==0) {
+        echo ("You do not have permission to view this record");
+        die;
+    }
 
-$row = $stmt->fetch();
+    //count how many records in this project - if too many then remove edit tools and simplify the view of the map
+    $pdo = new PDO('pgsql:host=127.0.0.1;dbname=nasafiremap', $username, $password);
 
-//var_export($row);
-
-$pdo = null;
- 
-
-// Check if any records found based on userid and permissions
-if ($resultcount ==0) {
-    echo "You do not have permission to view this record";
-    die;
-
-  }
-
+    $sql="select count(*) from monitorzones where projectid=? ;";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$projectid]);	
+    $count = $stmt->fetch();
+    $polycount = $count["count"];
+    $pdo = null;
 
 ?>
 
-
-
 <script>
-function checkEnter(e){
- e = e || event;
- var txtArea = /textarea/i.test((e.target || e.srcElement).tagName);
- return txtArea || (e.keyCode || e.which || e.charCode || 0) !== 13;
-}
+    function checkEnter(e){
+    e = e || event;
+    var txtArea = /textarea/i.test((e.target || e.srcElement).tagName);
+    return txtArea || (e.keyCode || e.which || e.charCode || 0) !== 13;
+    }
 </script>
 
-
 <meta charset=utf-8 />
-
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
-
-
         <title>Leaflet.draw vector editing handlers</title>
     
         <script src="libs/leaflet-src.js"></script>
@@ -101,7 +97,6 @@ function checkEnter(e){
         <script src="libs/src/edit/handler/Edit.CircleMarker.js"></script>
         <script src="libs/src/edit/handler/Edit.Circle.js"></script>
 
-
 <style>
     body {
         margin: 0;
@@ -134,34 +129,44 @@ function checkEnter(e){
     }
 
 </style>
-
 <script src="libs/jquery-1.11.1.min.js"></script>
-
-
 
 </head>
 <body>
 <script>
 function validateForm() {
 
-    exporttoDB(); //save the map data using function from the mapedit.php page
+    //only run MAP export if polygon count <30
+    var polycount = <?php echo ($polycount) ?>;
+
+    var countzonesmaplayer = countMapFeatures();
+
+    if (countzonesmaplayer > 249 )  // to prevent slow saves and loads, and data simplificatino on display being overwritten back to DB
+    {
+        alert ("Sorry, map data edits/additions NOT being saved back to Database - #polygon count too high")
+    }
+    else
+    {
+       exporttoDB(); //save the map data using function from the mapedit.php page
+    }
+
 
  if (details.projectname.value == null || details.projectname.value.length < 2) {
         alert("Please supply an project name");
         return false;
     };
 
-if (details.notification_emailaddress.value == null || details.notification_emailaddress.value.length < 6) {
+ if (details.notification_emailaddress.value == null || details.notification_emailaddress.value.length < 6) {
         alert("Please supply an contact email address");
         return false;
     };
  
-
     location.reload();
 }
 
 </script>
 <h1>EDIT Project: <?php echo($projectid) ?></h1>
+
 
 <div class="content">
     <form id="details" action="update_project.php" onsubmit="return validateForm()" method="POST">
@@ -185,14 +190,21 @@ if (details.notification_emailaddress.value == null || details.notification_emai
             <input name="mySubmit" type="submit"  value="Update Record on Server"/>
             <br><br>
             
-        </div> <br><br>
+        </div> <br>
 
        
 
     </form>
 
+   <div class = 'mapfeatures_count'> #Map Features: <span  id = 'mapfeaturecount'>  </span>
 
-    <br><br>
+   <?php
+if ($polycount >250) {
+    echo "<p style='color:red'>&nbsp;High polygon count [".$polycount."] - edit tools disabled and map view simplified for display purposes.</p>";
+}
+?>
+   </div> 
+
 </div>  
 
 <script>
@@ -210,31 +222,30 @@ if (details.notification_emailaddress.value == null || details.notification_emai
 
 </script>
 
-
-
 <div id='map'></div>
-
 
 <script>
 
 var alertzones = new L.geoJson();
 
-
-    var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             osm = L.tileLayer(osmUrl, { maxZoom: 18, attribution: osmAttrib }),
-            map = new L.Map('map', { center: new L.LatLng(51.505, -0.04), zoom: 13 }),
+            map = new L.Map('map', { center: new L.LatLng(0.1, -0.01), zoom: 2 }),
             drawnItems = L.featureGroup().addTo(map);
 
     L.control.layers({
         'osm': osm.addTo(map),
-        "google": L.tileLayer('http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {
+        "google": L.tileLayer('https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {
             attribution: 'google'
         })
-    }, { 'drawlayer': alertzones }, { position: 'topleft', collapsed: false }).addTo(map);
+    }, { 'monitor zones': alertzones }, { position: 'topleft', collapsed: false }).addTo(map);
 
-   
 
+
+    // only show edit tools if the number of polygons is below 250
+    var polycount = <?php echo ($polycount) ?>;
+    if (polycount <250) {
     var drawControl = new L.Control.Draw({
             edit: {
                 featureGroup: alertzones,
@@ -254,37 +265,50 @@ var alertzones = new L.geoJson();
         }
         }).addTo(map);
 
+    }
+
+
 
     map.on(L.Draw.Event.CREATED, function (event) {
         var layer = event.layer;
-
         alertzones.addLayer(layer);
-
-
     });
+
+    map.on("move", function(event) { 
+              document.getElementById("mapfeaturecount").innerHTML=countMapFeatures(); 
+         });
+
+
+function countMapFeatures ()
+    {
+        var counter = 0;
+        map.eachLayer((layer)=>{
+        if(layer instanceof L.Polygon){
+            counter++;
+        }
+        });
+
+    return counter;
+
+    }
 
 
 function featureclicked (e)
 {
     alert (e.layer.feature.properties.polyid);
-    alert (e.layer.feature.properties.projectid);
-
-
 }
 
 
 
 function zoombox(boxres) {
-var southWest = L.latLng(boxres.box.ymin, boxres.box.xmin);
- var northEast = L.latLng(boxres.box.ymax, boxres.box.xmax);
- console.log(boxres);
- bounds = L.latLngBounds(southWest, northEast);
- map.fitBounds(bounds);
-
+    var southWest = L.latLng(boxres.box.ymin, boxres.box.xmin);
+    var northEast = L.latLng(boxres.box.ymax, boxres.box.xmax);
+    console.log(boxres);
+    bounds = L.latLngBounds(southWest, northEast);
+    map.fitBounds(bounds);
 }
 
 function getBoundingBox() {
-
     var projectid = <?php echo ($projectid) ?>;
 
 				    var boxdata='projectid=' + projectid;
@@ -297,19 +321,16 @@ function getBoundingBox() {
 	}
 
 
-    function getdata(taskid) 
+function getdata(taskid) 
     {
          
-         //GET only POLYGONS FROM SPECIFIED PROJECT ID  
-         var projectid = <?php echo ($projectid) ?>;
-         var pid='projectid='.concat(projectid);
-
+         //GET only POLYGONS FROM SPECIFIED PROJECT ID 
           $.ajax({
               url: 'getmapdata.php',
               async:false,
               cache:false,
               timeout:30000,
-              data:pid,
+              data: { projectid: '<?php echo($projectid) ?>' , pcount:'<?php echo($polycount) ?>' },
               dataType: 'json',
               success: function(data){
                 $(data.features).each(function(key, data) 
@@ -320,28 +341,23 @@ function getBoundingBox() {
           }
           });
     }
-          
-    
 
 
-    function exporttoDB(){
+function exporttoDB()
+    {
+        var data = alertzones.toGeoJSON();
+        // Stringify the GeoJson
+        var convertedData = encodeURIComponent(JSON.stringify(data));
+        var projectid = <?php echo ($projectid) ?>;
 
-            var data = alertzones.toGeoJSON();
-
-            // Stringify the GeoJson
-            var convertedData = encodeURIComponent(JSON.stringify(data));
-            var projectid = <?php echo ($projectid) ?>;
-
-
-                                //SEND TO DATABASE
-                          var dataString = 'd='+ convertedData + '&p='+projectid;
-                          $.ajax({
-                            type:'POST',
-                            data:dataString,
-                            url:'pg_insert_mapdata.php'
-                          });
-}
-
+                    //SEND TO DATABASE
+                        var dataString = 'd='+ convertedData + '&p='+projectid;
+                        $.ajax({
+                        type:'POST',
+                        data:dataString,
+                        url:'pg_insert_mapdata.php'
+                        });
+    }
 
 
 
@@ -350,13 +366,7 @@ function getBoundingBox() {
 alertzones.addTo(map);
 getdata();
 getBoundingBox();
-
-
 </script>
-
-
-      
-
 
 </body>
 </html>
