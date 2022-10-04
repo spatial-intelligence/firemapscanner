@@ -77,6 +77,12 @@ body{
 		padding: 0 10px 10px 10px;
 		background: #eee;	 
 }
+
+.ui-datepicker {  z-index: 9999 !important; }
+
+.startdate {  z-index: 300; }
+
+
 .alert{
 	color:#f33;
 	}
@@ -91,11 +97,18 @@ body{
 	background:#eee;
 	}
 
+.mapfeatures_count{
+		color:#1c2f52;
+		font-size: 11px;
+	
+	}
+	
+
 h3.confirm{
 	padding: 0 0 0 10px;
 	margin-bottom: 0px;}
 	
-	
+
 
 #choice{
 	border:1px solid #ccc;
