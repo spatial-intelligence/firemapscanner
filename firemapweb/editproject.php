@@ -2,6 +2,7 @@
 <html>
 <head>
 <title>Edit Project Details</title>
+
 <script src="libs/jquery-1.11.1.min.js"></script>
 
 <?php
@@ -44,6 +45,7 @@
 
 ?>
 
+
 <script>
     function checkEnter(e){
     e = e || event;
@@ -51,6 +53,7 @@
     return txtArea || (e.keyCode || e.which || e.charCode || 0) !== 13;
     }
 </script>
+
 
 <meta charset=utf-8 />
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
@@ -96,6 +99,7 @@
         <script src="libs/src/edit/handler/Edit.Marker.js"></script>
         <script src="libs/src/edit/handler/Edit.CircleMarker.js"></script>
         <script src="libs/src/edit/handler/Edit.Circle.js"></script>
+
 
 <style>
     body {
@@ -156,11 +160,12 @@ function validateForm() {
         return false;
     };
 
- if (details.notification_emailaddress.value == null || details.notification_emailaddress.value.length < 6) {
+if (details.notification_emailaddress.value == null || details.notification_emailaddress.value.length < 6) {
         alert("Please supply an contact email address");
         return false;
     };
  
+
     location.reload();
 }
 
@@ -196,6 +201,8 @@ function validateForm() {
 
     </form>
 
+ 
+
    <div class = 'mapfeatures_count'> #Map Features: <span  id = 'mapfeaturecount'>  </span>
 
    <?php
@@ -204,6 +211,8 @@ if ($polycount >250) {
 }
 ?>
    </div> 
+
+
 
 </div>  
 
@@ -222,10 +231,12 @@ if ($polycount >250) {
 
 </script>
 
+
+
 <div id='map'></div>
 
-<script>
 
+<script>
 var alertzones = new L.geoJson();
 
     var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -242,10 +253,12 @@ var alertzones = new L.geoJson();
     }, { 'monitor zones': alertzones }, { position: 'topleft', collapsed: false }).addTo(map);
 
 
-
     // only show edit tools if the number of polygons is below 250
+
     var polycount = <?php echo ($polycount) ?>;
+
     if (polycount <250) {
+
     var drawControl = new L.Control.Draw({
             edit: {
                 featureGroup: alertzones,
