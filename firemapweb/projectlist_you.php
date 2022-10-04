@@ -37,6 +37,7 @@ $lastgrp=False;
 		}
 
 $lastgrp = !$lastgrp;
+	       
 	    echo ('<td valign="top">');
 
 		echo ($rows["projectid"]);
@@ -62,16 +63,11 @@ $lastgrp = !$lastgrp;
 
         }
 
-		
-
+	
 		echo ('</td><td valign="top">');
 		echo ('<a href=editproject.php?projectid='.$rows["projectid"].'>[edit]</a> &nbsp;');
-
 		echo ('<a href=uploadfile.php?projectid='.$rows["projectid"].' ">[upload]</a> &nbsp;');
-
-		echo ('<a href=historycheckphp?projectid='.$rows["projectid"].' ">[historic events]</a> &nbsp;');
-
-
+		echo ('<a href=historycheck.php?projectid='.$rows["projectid"].' ">[historic events]</a> &nbsp;');
 
 		//only owner can delete a project - not anyone else with edit permissions
 		$ownercheck=$rows["owneridcheck"];
@@ -80,8 +76,6 @@ $lastgrp = !$lastgrp;
 			echo ('<a href=removeproject.php?projectid='.$rows["projectid"].' onclick="return confirm (\'Are you sure you want to DELETE the project?\')">[delete]</a>');
 
 		}
-
-		
 
 
 		echo ("</td></tr>");
