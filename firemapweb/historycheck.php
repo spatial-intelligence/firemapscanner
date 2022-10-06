@@ -64,7 +64,7 @@ $password = getenv('DBFIRE_PASSWORD');
         position: absolute;
         bottom: 0;
         width:100%;
-        height: 85%;
+        height: 91%;
     }
 
 </style>
@@ -82,11 +82,23 @@ $password = getenv('DBFIRE_PASSWORD');
 <body>
 
 <h1>Fire History for project: <?php echo($projectid) ?></h1>
-<span id="startdate"> Date: <input type='text' id='datepicker'> </span>
+<span id="startdate"    
+  style="
+     position: fixed;
+    top: 60px;
+    left: 500px;
+    z-index: 499;"
+  >
 
-Dataset:
-
-<select class='dbselector' name="dbset">
+ Date: <input type='text' id='datepicker'>  Dataset:</span>
+<select class='dbselector' name="dbset"  style="
+     position: fixed;
+    top: 60px;
+    left: 780px;
+    z-index: 499;"
+   >
+	
+	
 <?php 
     $pdo = new PDO('pgsql:host=127.0.0.1;dbname=nasafiremap', $username, $password);
 
