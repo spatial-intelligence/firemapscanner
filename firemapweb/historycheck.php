@@ -250,7 +250,7 @@ function getBoundingBox() {
 
 
 //on date change event clear and re-load map data
-$('#datepicker').datepicker({ dateFormat: 'dd-mm-yy' })
+$('#datepicker').datepicker({ dateFormat: 'yy-mm-dd' })
     .on("input change", function (e) {
         markers.clearLayers();
         showStatus();
