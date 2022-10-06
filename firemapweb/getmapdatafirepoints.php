@@ -40,6 +40,6 @@ foreach($result AS $row)
 
 header('Content-type: application/json');
 echo json_encode($geojson, JSON_NUMERIC_CHECK);
-$conn = NULL;
+$pdo = null;
 ?>
 
