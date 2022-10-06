@@ -65,6 +65,7 @@ $password = getenv('DBFIRE_PASSWORD');
         bottom: 0;
         width:100%;
         height: 91%;
+        z-index: 1;
     }
 
 </style>
@@ -306,7 +307,7 @@ hideStatus();
 
 
 <style>
-  #graphview { width: 600px; height: 290px; padding: 0.5em; top:200px; left: 1050px;}
+  #graphview { width: 600px; height: 290px; padding: 0.5em; top:300px; left: 50px;}
 </style>
 
 
@@ -317,7 +318,7 @@ hideStatus();
   </script>
  
 <div id="graphview" class="ui-widget-content" style="z-index: 499;background-color:rgba(10, 10, 10, 0.8)" > 
- (This window is draggable)
+<br> Note: This window is draggable
 </div>
 
 
