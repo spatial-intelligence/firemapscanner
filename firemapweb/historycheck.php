@@ -188,7 +188,7 @@ function getBoundingBox() {
               async:false,
               cache:false,
               timeout:30000,
-              data:{ projectid: '<?php echo($projectid) ?>' , pcount:'<?php echo($polycount) ?>' },,
+              data:{ projectid: '<?php echo($projectid) ?>' , pcount:'<?php echo($polycount) ?>' },
               dataType: 'json',
               success: function(data){
                 $(data.features).each(function(key, data) 
@@ -245,7 +245,7 @@ $('#datepicker').datepicker({ dateFormat: 'dd-mm-yy' })
         datasetfilter_date = e.target.value;  //save the active date as variable
         getmarkers();
         hideStatus();
-        showchartresult();
+       
 });
 
 
