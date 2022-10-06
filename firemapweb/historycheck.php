@@ -11,8 +11,38 @@ $projectid=$_GET['projectid'];
 
 $username = getenv('DBFIRE_USERNAME');
 $password = getenv('DBFIRE_PASSWORD');
+	
+            
+    $pdo = new PDO('pgsql:host=127.0.0.1;dbname=nasafiremap', $username, $password);
+
+    $sql="select project.projectid,project.active,project.projectname,project.notification_emailaddress from project join userproject on project.projectid = userproject.projectid where project.projectid=?  and userproject.userid= ?  ;";
+    $stmt = $pdo->prepare($sql);
+
+    $stmt->execute([$projectid, $userid]);	
+    $resultcount = $stmt -> rowCount() ;
+    $row = $stmt->fetch();
+    //var_export($row);
+    $pdo = null;
+
+    // Check if any records found based on userid and permissions
+    if ($resultcount ==0) {
+        echo ("You do not have permission to view this record");
+        die;
+    }
+
+    //count how many records in this project - if too many then remove edit tools and simplify the view of the map
+    $pdo = new PDO('pgsql:host=127.0.0.1;dbname=nasafiremap', $username, $password);
+
+    $sql="select count(*) from monitorzones where projectid=? ;";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$projectid]);	
+    $count = $stmt->fetch();
+    $polycount = $count["count"];
+    $pdo = null;
 
 ?>
+
+
 
     <meta charset=utf-8 />
     <title>Map Tools</title>
@@ -63,9 +93,7 @@ Dataset:
     $sql="select tablename from datatablesindex order by tablename";
     $result = $pdo->prepare($sql);
     $result->execute();	
-
     $c = $result ->rowCount();
-
 
     while ($row = $result->fetch() ) 
      {
@@ -155,15 +183,12 @@ function getBoundingBox() {
     {         
          //GET only POLYGONS FROM SPECIFIED PROJECT ID  <<<<<<<<<<<<<<<<<<<<<<
 
-         var projectid = <?php echo ($projectid) ?>;
-         var pid='projectid='.concat(projectid);
-
           $.ajax({
               url: 'getmapdata.php',
               async:false,
               cache:false,
               timeout:30000,
-              data:pid,
+              data:{ projectid: '<?php echo($projectid) ?>' , pcount:'<?php echo($polycount) ?>' },,
               dataType: 'json',
               success: function(data){
                 $(data.features).each(function(key, data) 
