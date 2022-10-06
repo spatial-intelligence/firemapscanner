@@ -26,12 +26,8 @@ $geojson = array(
 foreach($result AS $row)
 {
     $properties = $row;
-    # Remove geojson and geometry fields from properties
-    unset($properties['geojson']);
-    unset($properties['the_geom']);
     $feature = array(
          'type' => 'Feature',
-         'geometry' => json_decode($row['geojson'], true),
          'properties' => $properties
     );
     # Add feature arrays to feature collection array
