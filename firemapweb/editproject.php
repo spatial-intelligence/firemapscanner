@@ -108,10 +108,9 @@
     }
     #map {
         position: absolute;
-        top: 1;
+        bottom: 0;
         width:100%;
-        height: 60%;
-
+        top: 340px;
     }
     #delete, #export {
         position: absolute;
