@@ -1,12 +1,12 @@
 
-function loaddata(dbset)
+function loaddata(dbset,polyid)
 {
 	var LineGraph ;
 	
 $.ajax({
 		
 
-		url : "linedata.php?dbset="+dbset,
+		url : "linedata.php?dbset="+dbset + "&polyid="+polyid,
 		type : "GET",
 		success : function(data){
 			//console.log(data);
