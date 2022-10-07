@@ -52,8 +52,8 @@ $password = getenv('DBFIRE_PASSWORD');
     <script src="libs/leaflet-src.js"></script>
     <link rel="stylesheet" href="libs/leaflet.css"/>
     <link rel="stylesheet" href="libs/MarkerCluster.css" />
-	<link rel="stylesheet" href="libs/MarkerCluster.Default.css" />
-	<script src="libs/leaflet.markercluster-src.js"></script>
+	  <link rel="stylesheet" href="libs/MarkerCluster.Default.css" />
+	  <script src="libs/leaflet.markercluster-src.js"></script>
 
 <style>
     body {
@@ -99,31 +99,26 @@ $password = getenv('DBFIRE_PASSWORD');
     z-index: 499;"
    >
 	
-	
-<?php 
-    $pdo = new PDO('pgsql:host=127.0.0.1;dbname=nasafiremap', $username, $password);
+    
+  <?php 
+      $pdo = new PDO('pgsql:host=127.0.0.1;dbname=nasafiremap', $username, $password);
 
-    $sql="select tablename from datatablesindex order by tablename";
-    $result = $pdo->prepare($sql);
-    $result->execute();	
-    $c = $result ->rowCount();
+      $sql="select tablename from datatablesindex order by tablename";
+      $result = $pdo->prepare($sql);
+      $result->execute();	
+      $c = $result ->rowCount();
 
-    while ($row = $result->fetch() ) 
-     {
-      echo "<option value=' " . $row['tablename'] . " '>".$row['tablename']."</option>";
-     }
+      while ($row = $result->fetch() ) 
+      {
+        echo "<option value=' " . $row['tablename'] . " '>".$row['tablename']."</option>";
+      }
 
-    $pdo = null;
+      $pdo = null;
 
-?>
-
-
+  ?>
 </select>
 
 <span id='status' style="color:red">  &nbsp;&nbsp; Loading data...</span>
-
-
-
 
 <div id='map'></div>
 
@@ -151,20 +146,17 @@ var markers = L.markerClusterGroup();
 
 
 
-function showchartresult() {
+function showchartresult(polyid) {
          datasetfilter_dbset = datasetfilter_dbset.replace(/\s+/g, '');  // remove spaces
-        var url = 'linegraph.php?dbset='+ datasetfilter_dbset;
+        var url = 'linegraph.php?dbset='+ datasetfilter_dbset + '&polyid='+polyid;
         $("#graphview").load(url);     
 }
 
 function featureclicked (e)
 {
-    alert (e.layer.feature.properties.polyid);
-}
+  //filter line graph to show just data for the dataset for this polygon
+    showchartresult(e.layer.feature.properties.polyid);
 
-function featureclicked_firepoint (e)
-{
-    alert (e.layer.feature.properties.acq_date);
 }
 
 
@@ -270,7 +262,7 @@ $('.dbselector').change(function(){
    markers.clearLayers();
    getmarkers();
    hideStatus();
-   showchartresult();
+   showchartresult('all');
   //alert(data);            
 });
 
