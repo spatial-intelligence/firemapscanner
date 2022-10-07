@@ -64,7 +64,7 @@ $password = getenv('DBFIRE_PASSWORD');
         position: absolute;
         bottom: 0;
         width:100%;
-        height: 91%;
+        top: 100px;
         z-index: 1;
     }
 
