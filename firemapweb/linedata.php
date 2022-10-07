@@ -1,10 +1,11 @@
 <?php
 
 	$dbset =  $_GET['dbset'];
+	$polyid =  $_GET['polyid'];
 
 try {
 	$username = getenv('DBFIRE_USERNAME');
-    $password = getenv('DBFIRE_PASSWORD');
+        $password = getenv('DBFIRE_PASSWORD');
 	$dbhost = 'localhost';
 	$dbname='nasafiremap';
 
@@ -15,9 +16,13 @@ catch (PDOException $e) {
 	die();
 }
 
- 
-$sql = "select date_trunc('day',acqdate)::date as dt,count (*) as c from $dbset group by date_trunc('day',acqdate) order by date_trunc('day',acqdate)";
- 
+if ($polyid =='all' )
+{
+   $sql = "select date_trunc('day',acqdate)::date as dt,count (*) as c from $dbset group by date_trunc('day',acqdate) order by date_trunc('day',acqdate)";
+}
+else{
+	$sql = "select date_trunc('day',acqdate)::date as dt,count (*) as c from $dbset a join monitorzones b on st_intersects (a.geom,b.geom) where b.polyid=$polyid group by date_trunc('day',acqdate) order by date_trunc('day',acqdate)";
+}
  
 $statement=$connec->prepare($sql);
 $statement->execute();
