@@ -257,7 +257,12 @@ def runarchive():
     cursor1.close()
 
 
-    sql2 = "INSERT INTO public.dailyreporthistory select * from dailyreport on conflict do nothing;"
+    sql2 = """
+    INSERT INTO public.dailyreport_polyhistory 
+    select dailyreport.polyid,now(), monitorzones.geom 
+    from dailyreport join monitorzones on dailyreport.polyid=monitorzones.polyid
+    on conflict do nothing;"""
+
     conn.autocommit = True
     cursor2 = conn.cursor()
     cursor2.execute(sql2)
