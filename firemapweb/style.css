@@ -14,12 +14,12 @@ html{
 
 #projecttable {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    width: 80% !important ;
+    width: 90% !important ;
     border-collapse: collapse;
 }
 
 #projecttable td, #projecttable th {
-    font-size: 1em;
+    font-size: 15px;
     border: 1px solid #98bf21;
     padding: 3px 9px 2px 7px;
 }
@@ -37,6 +37,36 @@ html{
     color: #000000;
     background-color: #EAF2D3;
 }
+
+
+#dailytable td, #dailytable th 
+ {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    width: 40% !important ;
+    border-collapse: collapse;
+}
+
+#dailytable td, #dailytable th {
+    font-size: 15px;
+    border: 1px solid #98bf21;
+    padding: 3px 9px 2px 7px;
+}
+
+#dailytable th {
+    font-size: 1.1em;
+    text-align: left;
+    padding-top: 5px;
+    padding-bottom: 4px;
+    background-color: #A7C942;
+    color: #ffffff;
+}
+
+#dailytable tr.alt td {
+    color: #000000;
+    background-color: #EAF2D3;
+}
+
+
 
 
 

@@ -17,8 +17,8 @@ $date = new DateTime();
 echo $date->format('d/m/Y (H:i:s)');
 echo ("<br>");
 
-echo '<table id="projecttable">';
-echo '<tr><th style="width: 90px">Project ID </th><th style ="width:450px">Project Name </th><th>Date Created </th><th>Owner UserID</th><th style ="width:120px">Active Status</th><th style="width:350px">Links</th></tr>';
+echo '<table id="projecttable" >';
+echo '<tr><th style="width: 85px">Project ID </th><th style ="width:380px">Project Name </th><th>Date Created </th><th style ="width:70px">Owner UserID</th><th style ="width:120px">Active Status</th><th style="width:500px">Links</th></tr>';
 
 $lastgrp=False;
 
@@ -37,7 +37,6 @@ $lastgrp=False;
 		}
 
 $lastgrp = !$lastgrp;
-	       
 	    echo ('<td valign="top">');
 
 		echo ($rows["projectid"]);
@@ -63,11 +62,20 @@ $lastgrp = !$lastgrp;
 
         }
 
-	
-		echo ('</td><td valign="top">');
+		
+
+		echo ('</td><td valign="top" font-size: 8px;>');
 		echo ('<a href=editproject.php?projectid='.$rows["projectid"].'>[edit]</a> &nbsp;');
+
 		echo ('<a href=uploadfile.php?projectid='.$rows["projectid"].' ">[upload]</a> &nbsp;');
+
+         echo ('[daily reports:');
+		echo ('<a href=dailyreports.php?projectid='.$rows["projectid"].' ">recent</a> &nbsp;');
+		echo ('<a href=projectreports.php?projectid='.$rows["projectid"].' ">all]</a> &nbsp;');
+
 		echo ('<a href=historycheck.php?projectid='.$rows["projectid"].' ">[historic events]</a> &nbsp;');
+
+
 
 		//only owner can delete a project - not anyone else with edit permissions
 		$ownercheck=$rows["owneridcheck"];
@@ -76,6 +84,8 @@ $lastgrp = !$lastgrp;
 			echo ('<a href=removeproject.php?projectid='.$rows["projectid"].' onclick="return confirm (\'Are you sure you want to DELETE the project?\')">[delete]</a>');
 
 		}
+
+		
 
 
 		echo ("</td></tr>");
