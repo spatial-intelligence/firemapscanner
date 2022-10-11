@@ -18,6 +18,7 @@ token = os.environ.get('POSTMARK_TOKEN')
 
 # send to black hole (will succeed if no errors)
 if token is None:
+  print("token not found")
   token = 'POSTMARK_API_TEST'
 
 postmark = PostmarkClient(server_token=token)
