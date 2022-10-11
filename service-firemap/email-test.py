@@ -13,12 +13,10 @@ print(sys.version)
 print("Postmarker version:")
 print(postmarker.__version__)
 
-# token = os.environ['POSTMARK_TOKEN']
 token = os.environ.get('POSTMARK_TOKEN')
 
-# send to black hole (will succeed if no errors)
 if token is None:
-  print("token not found")
+  print("Token not found so sending via POSTMARK_API_TEST black hole - good if no errors")
   token = 'POSTMARK_API_TEST'
 
 postmark = PostmarkClient(server_token=token)
