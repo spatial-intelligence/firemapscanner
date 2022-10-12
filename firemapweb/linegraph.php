@@ -9,7 +9,7 @@ try {
 	$dbhost = 'localhost';
 	$dbname='nasafiremap';
 
-	$connec = new PDO("pgsql:host=$dbhost;dbname=$dbname", $username, $password);
+	$connect = new PDO("pgsql:host=$dbhost;dbname=$dbname", $username, $password);
 }
 catch (PDOException $e) {
 	echo "Error : " . $e->getMessage() . "<br/>";
@@ -24,7 +24,7 @@ else{
 	$sql = "select date_trunc('day',acqdate)::date as dt,count (*) as c from $dbset a join monitorzones b on st_intersects (a.geom,b.geom) where b.polyid=$polyid group by date_trunc('day',acqdate) order by date_trunc('day',acqdate)";
 }
  
-$statement=$connec->prepare($sql);
+$statement=$connect->prepare($sql);
 $statement->execute();
 $results=$statement->fetchAll(PDO::FETCH_ASSOC);
 
@@ -36,6 +36,6 @@ $results=$statement->fetchAll(PDO::FETCH_ASSOC);
     sleep(0.5);
     exit(0);
  
- $connec=null;
+ $connect=null;
 
 ?>
