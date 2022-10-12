@@ -9,16 +9,24 @@ from pathlib import Path
 import shutil
 import fiona
 import psycopg2
+from postmarker.core import PostmarkClient
 
 ###########################################################################
 #  Check Values
 ###########################################################################
 
-# token = os.environ.get('POSTMARK_TOKEN')
+postmark_token = os.environ.get('POSTMARK_TOKEN')
+
+if postmark_token is None:
+  print("Token not found so sending via POSTMARK_API_TEST black hole - good if no errors")
+  postmark_token = 'POSTMARK_API_TEST'
+postmark = PostmarkClient(server_token=postmark_token)
+
+
 password = os.environ.get('POSTGRES_PASSWORD')
 
 if password is None:
-    print ('No postgres password found')
+    print ('No postgres password found, defaulting to test which is used in dev')
     password = 'test'
 
 username = 'postgres'
@@ -158,6 +166,13 @@ def notifyadmin(err):
     #Send msg to admin team about daily load error
 
     print ('Daily Reporting:',err)
+        
+    postmark.emails.send(
+        From='help@osr4rightstools.org',
+        To='davemateer@gmail.com',
+        Subject='Fire-Map',
+        HtmlBody='Message is: ' + err
+    )
 
 
 #---------------------------------------------------------------------------
@@ -219,21 +234,6 @@ def buildindexes(stage):
 def runreport():
     print ('Run Report - looking at new data from nasa and checking with monitorzones table')
     #check ACTIVE polygons against the tables and create report
-    # sql = "DROP TABLE IF EXISTS dailyreport;"
-    # sql+= """
-    #         CREATE TABLE dailyreport as 
-    #         SELECT fd.*, p.projectid,p.notification_emailaddress,m.polyid  FROM(
-    #         SELECT 'modis' as source, acq_date,acq_time,confidence::text,daynight,geom FROM modis_c6_1_global_24h
-    #         UNION
-    #         SELECT 'j1_viirs' as source, acq_date,acq_time,confidence::text,daynight, geom FROM j1_viirs_c2_global_24h
-    #         UNION
-    #         SELECT 'sumoi_viirs' as source, acq_date,acq_time,confidence::text,daynight, geom FROM suomi_viirs_c2_global_24h
-    #         ) fd
-    #         JOIN
-    #         monitorzones m on ST_DWITHIN (fd.geom,m.geom,0.01)
-    #         JOIN project p on m.projectid=p.projectid
-    #         where p.active = True;
-    #     """
     sql = """
 -- create a temp table with indexes is faster than sub query (2 seconds vs 40 minutes)
 DROP TABLE IF EXISTS all_years;
@@ -338,7 +338,7 @@ if (createDir):
         runreport()
         buildindexes(2)  #2nd time index daily results
 
-        #arhive daily data to a dailyhistory table
+        #archive daily data to a dailyreporthistory table
         runarchive()
 
         notifyadmin('Data loaded OK')
