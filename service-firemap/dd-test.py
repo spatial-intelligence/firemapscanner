@@ -14,8 +14,14 @@ import psycopg2
 #  Check Values
 ###########################################################################
 
-username = 'usernamehere'
-password = 'passwordhere'
+# token = os.environ.get('POSTMARK_TOKEN')
+password = os.environ.get('POSTGRES_PASSWORD')
+
+if password is None:
+    print ('No postgres password found')
+    password = 'test'
+
+username = 'postgres'
 
 today = datetime.today().strftime('%Y_%m_%d')
 downloadpath= "/var/datadownloads/"+str(today)+"/"
@@ -257,7 +263,12 @@ def runarchive():
     cursor1.close()
 
 
-    sql2 = "INSERT INTO public.dailyreporthistory select * from dailyreport on conflict do nothing;"
+    sql2 = """
+    INSERT INTO public.dailyreport_polyhistory 
+    select dailyreport.polyid,now(), monitorzones.geom 
+    from dailyreport join monitorzones on dailyreport.polyid=monitorzones.polyid
+    on conflict do nothing;"""
+
     conn.autocommit = True
     cursor2 = conn.cursor()
     cursor2.execute(sql2)
@@ -314,7 +325,6 @@ if (createDir):
         notifyadmin('Failed to load all data to DB')
 else:
     print ("Issue creating directory")
-
 
 #---------------------------------------------------------------------------
 
