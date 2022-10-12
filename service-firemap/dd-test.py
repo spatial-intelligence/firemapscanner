@@ -212,26 +212,49 @@ def buildindexes(stage):
     
     conn.commit()
     conn.close()
+    print ('index creation finished')
 
 
 #---------------------------------------------------------------------------
 def runreport():
+    print ('Run Report - looking at new data from nasa and checking with monitorzones table')
     #check ACTIVE polygons against the tables and create report
-    sql = "DROP TABLE IF EXISTS dailyreport;"
-    sql+= """
-            CREATE TABLE dailyreport as 
-            SELECT fd.*, p.projectid,p.notification_emailaddress,m.polyid  FROM(
-            SELECT 'modis' as source, acq_date,acq_time,confidence::text,daynight,geom FROM modis_c6_1_global_24h
+    # sql = "DROP TABLE IF EXISTS dailyreport;"
+    # sql+= """
+    #         CREATE TABLE dailyreport as 
+    #         SELECT fd.*, p.projectid,p.notification_emailaddress,m.polyid  FROM(
+    #         SELECT 'modis' as source, acq_date,acq_time,confidence::text,daynight,geom FROM modis_c6_1_global_24h
+    #         UNION
+    #         SELECT 'j1_viirs' as source, acq_date,acq_time,confidence::text,daynight, geom FROM j1_viirs_c2_global_24h
+    #         UNION
+    #         SELECT 'sumoi_viirs' as source, acq_date,acq_time,confidence::text,daynight, geom FROM suomi_viirs_c2_global_24h
+    #         ) fd
+    #         JOIN
+    #         monitorzones m on ST_DWITHIN (fd.geom,m.geom,0.01)
+    #         JOIN project p on m.projectid=p.projectid
+    #         where p.active = True;
+    #     """
+    sql = """
+-- create a temp table with indexes is faster than sub query (2 seconds vs 40 minutes)
+DROP TABLE IF EXISTS all_years;
+CREATE TEMP TABLE all_years as
+ 			SELECT 'modis' as source, acq_date,acq_time,confidence::text,daynight,geom FROM modis_c6_1_global_24h
             UNION
             SELECT 'j1_viirs' as source, acq_date,acq_time,confidence::text,daynight, geom FROM j1_viirs_c2_global_24h
             UNION
-            SELECT 'sumoi_viirs' as source, acq_date,acq_time,confidence::text,daynight, geom FROM suomi_viirs_c2_global_24h
-            ) fd
+            SELECT 'sumoi_viirs' as source, acq_date,acq_time,confidence::text,daynight, geom FROM suomi_viirs_c2_global_24h;
+
+CREATE INDEX on all_years using gist(geom);
+CREATE INDEX on all_years using btree(acq_date); 
+
+DROP TABLE IF EXISTS dailyreport;
+CREATE TABLE dailyreport as 
+            SELECT fd.*, p.projectid,p.notification_emailaddress,m.polyid  FROM all_years fd
             JOIN
             monitorzones m on ST_DWITHIN (fd.geom,m.geom,0.01)
             JOIN project p on m.projectid=p.projectid
             where p.active = True;
-        """
+    """
 
     conn = psycopg2.connect(
         database="nasafiremap", user=username, password=password, host='localhost', port='5432')
@@ -243,6 +266,7 @@ def runreport():
     
     conn.commit()
     conn.close()
+    print ('Run Report done')
 
 
 #---------------------------------------------------------------------------
