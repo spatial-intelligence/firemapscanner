@@ -1,41 +1,53 @@
+
+<!DOCTYPE html>
+<html>
+
+	<head>
+
+	<?php
+	   $dbset =  $_GET['dbset']; 
+	   $polyid =  $_GET['polyid']; 
+
+	?>
+
+		<title>LineGraph</title>
+		<style>
+			.chart-container {
+				width: 600px;
+				height: 290px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="chart-container">
+			<canvas id="chart1"></canvas>
+
+		</div>
+	
+		<!-- javascript -->
+		<script src="libs/jquery-1.11.1.min.js"></script>
+		<script type="text/javascript" src="libs/Chart.min.js"></script>
+		<script type="text/javascript" src="linegraph.js"> </script>	
+
 <?php
 
-	$dbset =  $_GET['dbset'];
-	$polyid =  $_GET['polyid'];
-
-try {
-	$username = getenv('DBFIRE_USERNAME');
-    $password = getenv('DBFIRE_PASSWORD');
-	$dbhost = 'localhost';
-	$dbname='nasafiremap';
-
-	$connect = new PDO("pgsql:host=$dbhost;dbname=$dbname", $username, $password);
-}
-catch (PDOException $e) {
-	echo "Error : " . $e->getMessage() . "<br/>";
-	die();
-}
-
-if ($polyid =='all' )
-{
-   $sql = "select date_trunc('day',acqdate)::date as dt,count (*) as c from $dbset group by date_trunc('day',acqdate) order by date_trunc('day',acqdate)";
-}
-else{
-	$sql = "select date_trunc('day',acqdate)::date as dt,count (*) as c from $dbset a join monitorzones b on st_intersects (a.geom,b.geom) where b.polyid=$polyid group by date_trunc('day',acqdate) order by date_trunc('day',acqdate)";
-}
- 
-$statement=$connect->prepare($sql);
-$statement->execute();
-$results=$statement->fetchAll(PDO::FETCH_ASSOC);
-
-
- echo json_encode($results);
- 
- flush();
-    ob_flush();
-    sleep(0.5);
-    exit(0);
- 
- $connect=null;
-
+	if 	($polyid == 'all')
+	{
+		echo ( '<br> Dataset: '.$dbset) ;
+	}
+	else {
+		echo ('<br> Polygon: '.$polyid );
+	}
 ?>
+
+	<script>
+
+		$(document).ready(function(){
+			loaddata('<?php echo ($dbset) ?>', '<?php echo ($polyid) ?>' );
+		});
+        
+
+    </script>
+	
+</body>
+</html>
