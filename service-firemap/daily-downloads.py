@@ -1,4 +1,4 @@
-#Run daily to download latest NASA Fire Data - then check against existing monitorzones (polygons) for all Active Projects
+#Run to download latest NASA Fire Data - then check against existing monitorzones (polygons) for all Active Projects
 
 import os
 from sqlalchemy import create_engine
@@ -359,13 +359,14 @@ if (createDir):
 
         notifyadmin('Data loaded OK')
 
-
     else:
         print ("Issue in Loading Daily Fire Records")
         notifyadmin('Failed to load all data to DB')
 else:
     print ("Issue creating directory")
 
+print("daily-downloads.py finished")
+print("------------------------------------")
 #---------------------------------------------------------------------------
 
 
