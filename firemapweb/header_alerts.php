@@ -119,8 +119,7 @@ if (!isset($_COOKIE[$cookie_name])) {
 	$row_count = sqlsrv_num_rows($stmt);
 
 	if ($row_count == 0) {
-		echo "unusual - cookie problem in the db - not authenticated!";
-		echo "can't do a redirect as displaying this error!";
+		echo 'Sorry - <a href="/">click here to continue and come back into the fire-map</a>  - This usually happens when you are logged in via multiple machines which is fine.';
 		die();
 	} else {
 		// success - assume only 1 row
