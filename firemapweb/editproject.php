@@ -236,19 +236,23 @@ if ($polycount >250) {
 
 
 <script>
+
 var alertzones = new L.geoJson();
+
+ESRImapLink = '<a href="http://www.esri.com/">Esri</a>';
+ESRIwholink ='i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
+   
 
     var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            osm = L.tileLayer(osmUrl, { maxZoom: 18, attribution: osmAttrib }),
+            osm = L.tileLayer(osmUrl, { maxZoom: 19, attribution: osmAttrib }),
             map = new L.Map('map', { center: new L.LatLng(0.1, -0.01), zoom: 2 }),
             drawnItems = L.featureGroup().addTo(map);
 
     L.control.layers({
         'osm': osm.addTo(map),
-        "google": L.tileLayer('https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {
-            attribution: 'google'
-        })
+        "google": L.tileLayer('https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {attribution: 'google',maxZoom: 19}),
+        "ESRI":  L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution: '&copy; '+ESRImapLink+', '+ESRIwholink,maxZoom: 18})
     }, { 'monitor zones': alertzones }, { position: 'topleft', collapsed: false }).addTo(map);
 
 
