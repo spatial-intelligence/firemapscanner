@@ -58,7 +58,7 @@ function validateForm() {
                 <h3>Project Details</h3>
                 <br>
                     <label><b>Project Number:</b></label>
-                    <input type ="number" placeholder="enter an integer" min=1 name="p" size="6" onchange="checkProjectCode()" /> <div id="pcode"></div>
+                    <input readonly type ="number" placeholder="enter an integer" min=1 name="p" size="6" onchange="checkProjectCode()" /> <div id="pcode"></div>
                     <br>	
                     <label><b>Project Name:</b></label>
                     <input type ="text" name="t" size= "80"/><br>
