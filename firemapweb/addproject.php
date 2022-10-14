@@ -83,7 +83,8 @@ function validateForm() {
             
     $pdo = new PDO('pgsql:host=127.0.0.1;dbname=nasafiremap', $username, $password);
             
-    $sql="select coalesce(1+max(projectid),1) as nbr from project";
+    $sql="select coalesce(1+(select max(projectid) from (select projectid from public.dailyreporthistory union select projectid from project )as p),1) as nbr ";
+
     $stmt = $pdo->prepare($sql);
     $stmt->execute();	
 
