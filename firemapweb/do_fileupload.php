@@ -86,7 +86,8 @@ if ($uploadOk == 0) {
       {
         $filetoprocess = basename($target_file_save);
         // $cmd = 'ogr2ogr -f "PostgreSQL" PG:"dbname=nasafiremap user='.$username.' password='.$password.' " /var/www/html/firemapweb/' . $target_file_save.' -nln user_'. $userid.' -skip-failures  -overwrite';
-        $cmd = 'ogr2ogr -f "PostgreSQL" PG:"dbname=nasafiremap user='.$username.' password='.$password.' " $webroot' . $target_file_save.' -nln user_'. $userid.' -skip-failures  -overwrite';
+        // $cmd = 'ogr2ogr -f "PostgreSQL" PG:"dbname=nasafiremap user='.$username.' password='.$password.' " $webroot' . $target_file_save.' -nln user_'. $userid.' -skip-failures  -overwrite';
+        $cmd = 'ogr2ogr -f "PostgreSQL" PG:"dbname=nasafiremap user='.$username.' password='.$password.'" ' . $webroot . $target_file_save.' -nln user_'. $userid.' -skip-failures  -overwrite';
         echo ("<br><br>".$cmd."<br>");
         echo shell_exec($cmd);
 
