@@ -12,7 +12,7 @@ $projectid=$_GET['projectid'];
 
 
 $pdo = new PDO('pgsql:host=127.0.0.1;dbname=nasafiremap', $username, $password);
-$sql='select distinct acq_date from public.dailyreporthistory join userproject on dailyreporthistory.projectid=userproject.projectid where dailyreporthistory.projectid=? and userid=? order by acq_date desc;';
+$sql='select  acq_date, count (*) from public.dailyreporthistory join userproject on dailyreporthistory.projectid=userproject.projectid where dailyreporthistory.projectid=? and userid=? group by acq_date order by acq_date desc;';
 
 $result = $pdo->prepare($sql);
 $result->execute([$projectid,$userid]);
@@ -23,7 +23,7 @@ echo $date->format('d/m/Y (H:i:s)');
 echo ("<br>");
 
 echo '<table id="dailytable" >';
-echo '<tr><th style="width: 85px">Daily Reports <br>(yyyy-mm-dd)</th><th style ="width:420px">';
+echo '<tr><th style="width: 85px">Daily Reports <br>(yyyy-mm-dd)</th><th style ="width:420px">Fire Count</th><th>Map Link</th>';
 
 $lastgrp=False;
 
@@ -42,13 +42,11 @@ $lastgrp=False;
 $lastgrp = !$lastgrp;
 
 	    echo ('<td valign="top">');
-
 		echo ($rows["acq_date"]);
-
-	    echo ('</td><td valign="top" >');
-
+		echo ('</td><td>');
+		echo ($rows["count"]);
+		echo ('</td><td valign="top" >');
 		echo ("<a href=dailyreports.php?projectid=".$projectid."&dt='".$rows["acq_date"]."'  >[daily map]</a> &nbsp;");
-
 		echo ("</td></tr>");
 		}
 
