@@ -10,6 +10,7 @@ import shutil
 import fiona
 import psycopg2
 from postmarker.core import PostmarkClient
+from sqlalchemy import text
 
 ###########################################################################
 #  Check Values
@@ -95,9 +96,26 @@ def uploadtoPostgreSQL():
 
     print ('================> Uploading DAILY 24h datasets to PostgreSQL')
     
-    sql.execute('DROP TABLE IF EXISTS MODIS_C6_1_Global_24h'  , engine)
-    sql.execute('DROP TABLE IF EXISTS J1_VIIRS_C2_Global_24h'  , engine)
-    sql.execute('DROP TABLE IF EXISTS SUOMI_VIIRS_C2_Global_24h'  , engine)
+    # .execute deprecated in SQLAlchemy > 2.0
+    # https://stackoverflow.com/questions/75309237/read-sql-query-throws-optionengine-object-has-no-attribute-execute-with
+    # sql.execute('DROP TABLE IF EXISTS MODIS_C6_1_Global_24h'  , engine)
+    # sql.execute('DROP TABLE IF EXISTS J1_VIIRS_C2_Global_24h'  , engine)
+    # sql.execute('DROP TABLE IF EXISTS SUOMI_VIIRS_C2_Global_24h'  , engine)
+
+    # DM trying different way to connect
+    sqlf = 'DROP TABLE IF EXISTS MODIS_C6_1_Global_24h;'
+    sqlf += 'DROP TABLE IF EXISTS J1_VIIRS_C2_Global_24h;'
+    sqlf += 'DROP TABLE IF EXISTS SUOMI_VIIRS_C2_Global_24h;'
+    conn = psycopg2.connect(database="nasafiremap", user=username, password=password, host='localhost', port='5432')
+    
+    conn.autocommit = True
+    cursor = conn.cursor()
+    
+    cursor.execute(sqlf)
+    
+    conn.commit()
+    conn.close()
+
 
     #alt method to load with ogr2ogr
     #cmd1 = 'ogr2ogr -f "PostgreSQL" PG:"dbname=nasafiremap user='+username+' password='+password+' " '+downloadpath + 'SUOMI_VIIRS_C2_Global_24h.shp -nln daily_suomi -skip-failures  -overwrite '
@@ -126,7 +144,13 @@ def runChecks():
     with fiona.open(downloadpath+'MODIS_C6_1_Global_24h.shp') as input:
         records=len(input)
 
-    dfcheck = pd.read_sql("select count(*) from "+ 'MODIS_C6_1_Global_24h'.lower(),con=engine)
+    # DM updated 
+    #dfcheck = pd.read_sql("select count(*) from "+ 'MODIS_C6_1_Global_24h'.lower(),con=engine)
+    with engine.begin() as conn:
+        sqlfoo = "select count(*) from "+ 'MODIS_C6_1_Global_24h'.lower()
+        query = text(sqlfoo)
+        dfcheck = pd.read_sql_query(query, conn)
+
     print (dfcheck.iloc[0]['count'])
 
     if (abs(dfcheck.iloc[0]['count'] - records) >1): #allow 1 record diff 
@@ -138,7 +162,13 @@ def runChecks():
     with fiona.open(downloadpath+'SUOMI_VIIRS_C2_Global_24h.shp') as input:
         records=len(input)
 
-    dfcheck = pd.read_sql("select count(*) from "+ 'SUOMI_VIIRS_C2_Global_24h'.lower(), con=engine)
+    # DM updated
+    #dfcheck = pd.read_sql("select count(*) from "+ 'SUOMI_VIIRS_C2_Global_24h'.lower(), con=engine)
+    with engine.begin() as conn:
+        sqlfoo = "select count(*) from "+ 'SUOMI_VIIRS_C2_Global_24h'.lower()
+        query = text(sqlfoo)
+        dfcheck = pd.read_sql_query(query, conn)
+
     print (dfcheck.iloc[0]['count'])
 
     if (abs( dfcheck.iloc[0]['count'] - records) >1 ): #allow 1 record diff
@@ -150,7 +180,13 @@ def runChecks():
     with fiona.open(downloadpath+'J1_VIIRS_C2_Global_24h.shp') as input:
         records=len(input)
 
-    dfcheck = pd.read_sql("select count(*) from "+ 'J1_VIIRS_C2_Global_24h'.lower(), con=engine)
+    # DM updated
+    # dfcheck = pd.read_sql("select count(*) from "+ 'J1_VIIRS_C2_Global_24h'.lower(), con=engine)
+    with engine.begin() as conn:
+        sqlfoo = "select count(*) from "+ 'J1_VIIRS_C2_Global_24h'.lower()
+        query = text(sqlfoo)
+        dfcheck = pd.read_sql_query(query, conn)
+
     print (dfcheck.iloc[0]['count'])
 
     if (abs (dfcheck.iloc[0]['count'] - records) >1):  #allow 1 record diff
